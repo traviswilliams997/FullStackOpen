@@ -4,18 +4,27 @@ const Statistics = ({ good, neutral, bad }) => {
   const all = good+neutral+bad; 
   const average = (good*1 + neutral*0 + bad*-1)/all; 
   const postive = (good/all)*100;
- 
-  return (
+  if(all === 0){
+    return (
     <div>
-      <Heading text='statistics' />
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
-      <p>all {all}</p>
-      <p>average {average}</p>
-      <p>postive {postive}%</p>
+      <p>No feedback given</p>
     </div>
-  )
+    )
+
+  }else{
+    return (
+      <div>
+        <Heading text='statistics' />
+        <p>good {good}</p>
+        <p>neutral {neutral}</p>
+        <p>bad {bad}</p>
+        <p>all {all}</p>
+        <p>average {average}</p>
+        <p>postive {postive}%</p>
+      </div>
+    )
+ }
+  
 }
 const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>
