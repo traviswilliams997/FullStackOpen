@@ -4,6 +4,7 @@ const Statistics = ({ good, neutral, bad }) => {
   const all = good+neutral+bad; 
   const average = (good*1 + neutral*0 + bad*-1)/all; 
   const positive = (good/all)*100;
+
   if(all === 0){
     return (
     <div>
@@ -12,23 +13,32 @@ const Statistics = ({ good, neutral, bad }) => {
     )
 
   }else{
-    return (
-      <div>
-        <Heading text='statistics' />
-        <StatisticLine text="good" value ={good} />
-        <StatisticLine text="neutral" value ={neutral} />
-        <StatisticLine text="bad" value ={bad} />
-        <StatisticLine text="all" value ={all} />
-        <StatisticLine text="average" value ={average} />
-        <StatisticLine text="positive" value ={positive} />
-      </div>
+    return ( 
+        <table>
+          <thead>
+            <tr>
+              <th><Heading text='statistics' /></th>
+            </tr>  
+          </thead>
+          <tbody>
+            <StatisticLine text="good" value ={good} />
+            <StatisticLine text="neutral" value ={neutral} />
+            <StatisticLine text="bad" value ={bad} />      
+            <StatisticLine text="all" value ={all} />
+            <StatisticLine text="average" value ={average} />
+            <StatisticLine text="positive" value ={positive} />
+          </tbody>
+        </table>
     )
  }
-  
 }
-const StatisticLine = ({ text, value }) => (<p>{text} {value}</p>)
-
-
+const StatisticLine = ({ text, value }) => {
+  return(
+    <tr>
+     <td>{text}</td><td>{value}</td>
+    </tr>
+   )
+  }
 
 const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>
@@ -52,8 +62,6 @@ const App = () => {
     setBad(bad + 1)
   }
   
-
-
   return (
     <div>
         <Heading text='give feeedback' />
