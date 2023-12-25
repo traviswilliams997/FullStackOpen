@@ -1,14 +1,35 @@
 import { useState } from 'react'
-const Votes = ({ points, position }) =>(
-  <p>
-    has {points[position]} votes
-  </p>
-)
+
+const Heading = ({ text }) =>(<h1>{text}</h1>)
+const Displayanecdote = ({ anecdotes, index }) =>(<p>{anecdotes[index]}</p>)
+const Votes = ({ points, position }) =>(<p>has {points[position]} votes</p>)
 const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>
     {text}
   </button>
 )
+const Dayanecdote = ({ anecdotes, points, selected, handleVoteClick, handleNextClick }) =>{
+  return (
+    <div>
+      <Heading  text='Anecdote of the day'/>
+      <Displayanecdote anecdotes={anecdotes} index={selected} />
+      <Votes  points={points} position={selected} />
+      <Button handleClick={handleVoteClick} text='vote' />
+      <Button handleClick={handleNextClick} text='next anecdote' />
+    </div>
+  )
+}
+
+const Topanecdote = ({ anecdotes, points, maxIndex }) =>{
+  return (
+    <div>
+        <Heading  text='Anecdote with most votes'/>
+        <Displayanecdote anecdotes={anecdotes} index={maxIndex} />
+        <Votes  points={points} position={maxIndex} />
+    </div>
+  )
+}
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -23,10 +44,16 @@ const App = () => {
     
   const [selected, setSelected] = useState(0)
   const [points, setPoints] = useState(Array(anecdotes.length).fill(0))
+  const [maxVotes, setMaxVotes] = useState(0)
+  const [maxVotesIndex, setMaxVotesIndex] = useState(0)
 
   const handleVoteClick = () => {
     const copy = [...points] 
     copy[selected] += 1  
+    if(copy[selected ] > maxVotes){
+      setMaxVotes(copy[selected ]);
+      setMaxVotesIndex(selected);
+    }
     setPoints(copy)
   }
   const handleNextClick = () => {
@@ -36,10 +63,8 @@ const App = () => {
     
   return (
     <div>
-      {anecdotes[selected]} <br />
-      <Votes  points={points} position={selected} />
-      <Button handleClick={handleVoteClick} text='vote' />
-      <Button handleClick={handleNextClick} text='next anecdote' />
+      <Dayanecdote anecdotes={anecdotes} selected={selected} points={points} handleVoteClick={handleVoteClick} handleNextClick={handleNextClick}/>
+      <Topanecdote anecdotes={anecdotes} points={points} maxIndex={maxVotesIndex} />
     </div>
   )
 }
