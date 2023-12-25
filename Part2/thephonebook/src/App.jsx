@@ -13,10 +13,10 @@ const App = () => {
 
   useEffect(() => {
     personService
-  .getAll()
-  .then(initialPersons => {
-    setPersons(initialPersons)
-  })
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
+    })
   }, [])
 
   const addPerson = (event) => {
@@ -55,6 +55,17 @@ const App = () => {
     setNewFilter(event.target.value)
   }
 
+  const deletePerson = (id) => {
+    if (window.confirm("Do you really want to delete?")) {
+      personService
+      .remove(id)
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== id))
+      })     
+    }
+    
+  }
+
   const filteredPersons =  newFilter === '' ?  persons :  persons.filter(person => person.name.toLowerCase() === newFilter.toLowerCase())
 
   return (
@@ -70,7 +81,7 @@ const App = () => {
         handleNumberChange={handleNumberChange} 
       />    
       <h3>Numbers</h3>    
-      <Persons persons={filteredPersons}/>
+      <Persons persons={filteredPersons} deletePerson={deletePerson}/>
     </div>
   )
 }
