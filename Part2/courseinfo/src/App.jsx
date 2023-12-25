@@ -19,6 +19,11 @@ const App = () => {
         partid: 3,
         name: 'State of a component',
         exercises: 14
+      },
+      {
+        partid: 4,
+        name: 'Redux',
+        exercises: 11
       }
     ]
   }
@@ -26,7 +31,7 @@ const App = () => {
  
   return (
     <div>
-       <Course course={course}/>
+      <Course course={course}/>
     </div>
   )
 }
