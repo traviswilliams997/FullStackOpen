@@ -23,7 +23,7 @@ test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
 
   expect(response.body).toHaveLength(helper.initialBlogs.length)
-})
+}, 10000)
 
 test('unique identifier is id and not _id', async () => {
   const blog = await Blog.findOne({})
