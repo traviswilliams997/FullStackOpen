@@ -13,8 +13,8 @@ import loginService from './services/login'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [notificationMessage, setNotificationMessage] = useState('No notification yet...')
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
@@ -24,9 +24,8 @@ const App = () => {
       const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
       setBlogs(sortedBlogs)
     }
-    fetchBlogs() 
+    fetchBlogs()
   }, [])
-
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
@@ -39,7 +38,7 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password,
@@ -47,7 +46,7 @@ const App = () => {
 
       window.localStorage.setItem(
         'loggedBlogAppUser', JSON.stringify(user)
-      ) 
+      )
       blogService.setToken(user.token)
       setUser(user)
       setUsername('')
@@ -56,7 +55,7 @@ const App = () => {
       console.log('handleLogin error',exception.message)
       setNotificationMessage('Wrong credentials')
       setTimeout(() => {
-       setErrorMessage(null)
+        setNotificationMessage(null)
       }, 5000)
     }
   }
@@ -69,20 +68,17 @@ const App = () => {
     setPassword('')
   }
 
-
   const addBlog = async (blogObject) => {
     blogFormRef.current.toggleVisibility()
-   
+
     const returnedBlog = await blogService.create(blogObject)
 
-     setBlogs(blogs.concat(returnedBlog))
-     setNotificationMessage(`Added blog post "${returnedBlog.title}"`)
-     setTimeout(() => {
-        setNotificationMessage(null)
-     }, 5000)
+    setBlogs(blogs.concat(returnedBlog))
+    setNotificationMessage(`Added blog post "${returnedBlog.title}"`)
+    setTimeout(() => {
+      setNotificationMessage(null)
+    }, 5000)
   }
-    
-  
 
   const incrementLikes = async (id) => {
     const blog = await blogs.find(blog => blog.id === id)
@@ -94,7 +90,7 @@ const App = () => {
       newBlogs.sort((a, b) => b.likes - a.likes)
       setBlogs(newBlogs)
 
-    }catch(error){    
+    }catch(error){
       setNotificationMessage(
         `${error.message}`
       )
@@ -102,7 +98,7 @@ const App = () => {
         setNotificationMessage(null)
       }, 5000)
       setBlogs(blogs.filter(blog => blog.id !== id))
-    } 
+    }
   }
 
   const removeBlog = async (id) => {
@@ -111,7 +107,6 @@ const App = () => {
       await blogService.remove(id)
       const newBlogs = blogs.filter(b => b.id !== id)
       setBlogs(newBlogs)
-      
     }catch(error){
       setNotificationMessage(
         `${error.message}`
@@ -119,42 +114,40 @@ const App = () => {
       setTimeout(() => {
         setNotificationMessage(null)
       }, 5000)
-    } 
+    }
   }
-  
+
   const blogForm = () => (
     <Togglable buttonLabel='new blog' ref={blogFormRef}>
       <BlogForm
         createBlog={addBlog}
-        user={user} 
+        user={user}
       />
     </Togglable>
-    )
-    const loginForm = () => (
-      <Togglable buttonLabel='login'>
-        <LoginForm
-          username={username}
-          password={password}
-          handleUsernameChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}
-          handleSubmit={handleLogin}
-       />
-      </Togglable>
-      )
-  
- 
+  )
 
- 
+  const loginForm = () => (
+    <Togglable buttonLabel='login'>
+      <LoginForm
+        username={username}
+        password={password}
+        handleUsernameChange={({ target }) => setUsername(target.value)}
+        handlePasswordChange={({ target }) => setPassword(target.value)}
+        handleSubmit={handleLogin}
+      />
+    </Togglable>
+  )
+
   return (
     <div>
       <Notification message={notificationMessage} />
-      {!user && 
+      {!user &&
         <div>
           <h2>log in to application</h2>
           {  loginForm() }
         </div>
-      } 
-      {user && 
+      }
+      {user &&
         <div>
           <h2>blogs</h2>
           <p>{user.name} logged in</p>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 
-const Blog = ({ blog, incrementLikes, removeBlog, user}) => {
+const Blog = ({ blog, incrementLikes, removeBlog, user }) => {
   const [showFullBlog, setShowFullBlog] = useState(false)
 
   const handleShowFullBlog = () => {
@@ -16,14 +16,14 @@ const Blog = ({ blog, incrementLikes, removeBlog, user}) => {
     marginBottom: 5
   }
 
-   const handleLikes = () => {
+  const handleLikes = () => {
     incrementLikes(blog.id)
-   }
-   const handleRemove = () => {
+  }
+  const handleRemove = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
       removeBlog(blog.id)
     }
-   }
+  }
 
 
   if(!showFullBlog){
@@ -35,30 +35,28 @@ const Blog = ({ blog, incrementLikes, removeBlog, user}) => {
     )
   }
 
-  if(showFullBlog && blog.user.username == user.username){
+  if(showFullBlog && blog.user.username === user.username){
     return (
-    <div style={blogStyle}>
-      <div>{blog.title} <button onClick={handleShowFullBlog}>hide</button></div>
-      {blog.url} <br />
-      <div> {blog.likes} <button onClick={handleLikes}>Like</button></div>
-      {blog.user.name} <br />
-     <button onClick={handleRemove}> remove</button>
-  </div> 
-  )
+      <div style={blogStyle}>
+        <div>{blog.title} <button onClick={handleShowFullBlog}>hide</button></div>
+        {blog.url} <br />
+        <div> {blog.likes} <button onClick={handleLikes}>Like</button></div>
+        {blog.user.name} <br />
+        <button onClick={handleRemove}> remove</button>
+      </div>
+    )
   }
 
-  if(showFullBlog && blog.user.username != user.username){
+  if(showFullBlog && blog.user.username !== user.username){
     return (
-    <div style={blogStyle}>
-      <div>{blog.title} <button onClick={handleShowFullBlog}>hide</button></div>
-      {blog.url} <br />
-      <div> {blog.likes} <button onClick={handleLikes}>Like</button></div>
-      {blog.user.name} <br />
-  </div> 
-  )
+      <div style={blogStyle}>
+        <div>{blog.title} <button onClick={handleShowFullBlog}>hide</button></div>
+        {blog.url} <br />
+        <div> {blog.likes} <button onClick={handleLikes}>Like</button></div>
+        {blog.user.name} <br />
+      </div>
+    )
   }
-   
-
 }
 
 
