@@ -15,6 +15,7 @@ const App = () => {
   const [notificationMessage, setNotificationMessage] = useState('No notification yet...')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
@@ -117,11 +118,11 @@ const App = () => {
     }
   }
 
+
   const blogForm = () => (
-    <Togglable buttonLabel='new blog' ref={blogFormRef}>
+    <Togglable  buttonLabel='new blog post' ref={blogFormRef}>
       <BlogForm
         createBlog={addBlog}
-        user={user}
       />
     </Togglable>
   )
@@ -152,11 +153,17 @@ const App = () => {
           <h2>blogs</h2>
           <p>{user.name} logged in</p>
           <button onClick={handleLogOut}>Logout</button>
-          <h3>create new blog</h3>
+          <h3>Create new blog</h3>
           {  blogForm() }
           <br/>
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} incrementLikes={incrementLikes} removeBlog={removeBlog} user={user} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              incrementLikes={incrementLikes}
+              removeBlog={removeBlog}
+              user={user}
+            />
           )}
         </div>
       }
