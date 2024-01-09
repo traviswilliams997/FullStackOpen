@@ -22,7 +22,8 @@ const App = () => {
   useEffect(()  => {
     async function fetchBlogs() {
       const blogs = await blogService.getAll()
-      const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+      const sortedBlogs = [ ...blogs ]
+      sortedBlogs.sort((a, b) => b.likes - a.likes)
       setBlogs(sortedBlogs)
     }
     fetchBlogs()
