@@ -7,18 +7,13 @@ const Blog = require('../models/blog')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
 
-
-
-
 beforeEach(async () => {
   await Blog.deleteMany({})
 
-  const blogObjects = helper.initialBlogs
-    .map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
+  const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog))
+  const promiseArray = blogObjects.map((blog) => blog.save())
   await Promise.all(promiseArray)
 })
-
 
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
@@ -36,7 +31,7 @@ test('a valid blog can be added', async () => {
     title: 'Third Post',
     author: 'Audrey',
     url: 'wwww.thirdUrl.com',
-    likes: 1
+    likes: 1,
   }
 
   await api
@@ -45,13 +40,11 @@ test('a valid blog can be added', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  const blogsAtEnd =  await helper.blogsInDb()
+  const blogsAtEnd = await helper.blogsInDb()
   expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-  const titles = blogsAtEnd.map(b => b.title)
-  expect(titles).toContain(
-    'Third Post'
-  )
+  const titles = blogsAtEnd.map((b) => b.title)
+  expect(titles).toContain('Third Post')
 })
 
 test('likes defaults to 0 when created with no likes', async () => {
@@ -75,7 +68,7 @@ test('a blog post with title will not be created', async () => {
   const newBlog = {
     author: 'Audrey',
     url: 'wwww.thirdUrl.com',
-    likes: 1
+    likes: 1,
   }
 
   await api
@@ -83,31 +76,24 @@ test('a blog post with title will not be created', async () => {
     .send(newBlog)
     .expect(400)
     .expect('Content-Type', /application\/json/)
-
 })
-
 
 describe('deletion of a note', () => {
   test('succeeds with status code 204 if id is valid', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
-    await api
-      .delete(`/api/blogs/${blogToDelete.id}`)
-      .expect(204)
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
 
-    expect(blogsAtEnd).toHaveLength(
-      helper.initialBlogs.length - 1
-    )
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
 
-    const title = blogsAtEnd.map(b => b.content)
+    const title = blogsAtEnd.map((b) => b.content)
 
     expect(title).not.toContain(blogToDelete.title)
   })
 })
-
 
 describe('when there is initially one user in db', () => {
   beforeEach(async () => {
@@ -137,7 +123,7 @@ describe('when there is initially one user in db', () => {
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
 
-    const usernames = usersAtEnd.map(u => u.username)
+    const usernames = usersAtEnd.map((u) => u.username)
     expect(usernames).toContain(newUser.username)
   })
 
@@ -164,7 +150,6 @@ describe('when there is initially one user in db', () => {
 })
 
 describe('when there is initially one user in db', () => {
-
   test('creation fails with proper statuscode and message if username length is less than 3', async () => {
     const usersAtStart = await helper.usersInDb()
 
@@ -180,13 +165,13 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('User validation failed: username: Path `username` (`hi`) is shorter than the minimum allowed length (3).')
+    expect(result.body.error).toContain(
+      'User validation failed: username: Path `username` (`hi`) is shorter than the minimum allowed length (3).'
+    )
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toEqual(usersAtStart)
   })
-
-
 
   test('creation fails with proper statuscode and message if username is missing', async () => {
     const usersAtStart = await helper.usersInDb()
@@ -202,7 +187,9 @@ describe('when there is initially one user in db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('User validation failed: username: Path `username` is required.')
+    expect(result.body.error).toContain(
+      'User validation failed: username: Path `username` is required.'
+    )
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toEqual(usersAtStart)
@@ -249,7 +236,6 @@ describe('when there is initially one user in db', () => {
     expect(usersAtEnd).toEqual(usersAtStart)
   })
 })
-
 
 afterAll(async () => {
   await mongoose.connection.close()

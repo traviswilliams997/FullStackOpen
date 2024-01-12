@@ -25,7 +25,7 @@ const App = () => {
   }
 
   return (
-    <Router>
+    <Router className="container">
       <div>
         <Link style={padding} to="/">home</Link>
         <Link style={padding} to="/notes">notes</Link>

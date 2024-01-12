@@ -9,7 +9,7 @@ const BlogForm = ({ createBlog }) => {
     event.preventDefault()
     createBlog({
       title: newBlogTitle,
-      author:newBlogAuthor,
+      author: newBlogAuthor,
       url: newBlogUrl,
     })
 
@@ -33,26 +33,28 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={addBlog}>
         title:
         <input
-          id='title-input'
+          id="title-input"
           value={newBlogTitle}
           onChange={handleBlogTitleChange}
-          placeholder='Title...'
-        />   <br/>
+          placeholder="Title..."
+        />{' '}
+        <br />
         author:
         <input
-          id='author-input'
+          id="author-input"
           value={newBlogAuthor}
           onChange={handleBlogAuthorChange}
-          placeholder='Author...'
-
-        /> <br/>
+          placeholder="Author..."
+        />{' '}
+        <br />
         url:
         <input
-          id='url-input'
+          id="url-input"
           value={newBlogUrl}
           onChange={handleBlogUrlChange}
-          placeholder='Url...'
-        /><br/>
+          placeholder="Url..."
+        />
+        <br />
         <button type="submit">save</button>
       </form>
     </div>

@@ -26,5 +26,4 @@ test('<BlogForm /> updates parent state and calls onSubmit', async () => {
   expect(createBlog.mock.calls[0][0].title).toBe('First Post')
   expect(createBlog.mock.calls[0][0].author).toBe('Me')
   expect(createBlog.mock.calls[0][0].url).toBe('www.blog.com')
-
 })

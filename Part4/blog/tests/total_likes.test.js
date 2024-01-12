@@ -1,7 +1,6 @@
 const listHelper = require('../utils/list_helper')
 
 describe('total likes', () => {
-
   const listWithOneBlog = [
     {
       _id: '5a422aa71b54a676234d17f8',
@@ -9,7 +8,7 @@ describe('total likes', () => {
       author: 'Edsger W. Dijkstra',
       url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
   ]
 
@@ -20,7 +19,7 @@ describe('total likes', () => {
       author: 'Edsger W. Dijkstra',
       url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
       likes: 5,
-      __v: 0
+      __v: 0,
     },
     {
       _id: '5a422aa71b54a676234d17f8',
@@ -28,11 +27,10 @@ describe('total likes', () => {
       author: 'Random author',
       url: 'www.someUrl.com',
       likes: 10,
-      __v: 0
-    }
+      __v: 0,
+    },
   ]
-  const listWithNoBlog = [
-  ]
+  const listWithNoBlog = []
 
   test('total likes one blog', () => {
     expect(listHelper.totalLikes(listWithOneBlog)).toBe(5)

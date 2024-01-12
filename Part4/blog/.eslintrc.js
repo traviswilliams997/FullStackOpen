@@ -4,7 +4,10 @@ module.exports = {
     'es2021': true,
     'node': true,
     'jest': true, },
-  'extends': 'eslint:recommended',
+  'extends': [
+           'eslint:recommended',
+           'prettier'
+  ],
   'parserOptions': {
     'ecmaVersion': 'latest' },
   'rules': {
