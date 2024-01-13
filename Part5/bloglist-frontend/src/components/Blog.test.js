@@ -4,7 +4,19 @@ import { render, screen } from '@testing-library/react'
 import Blog from './Blog'
 import userEvent from '@testing-library/user-event'
 
+import { useAppSelector, useAppDispatch } from '../redux/redux-hooks'
+import { testUseAppSelector } from '../redux/test-app-selector'
+
+jest.mock('../redux/redux-hooks')
+
 describe('<Blog />  when user is same as poster', () => {
+  beforeEach(() => {
+    useAppSelector.mockImplementation(testUseAppSelector)
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
   test('renders content', () => {
     const blog = {
       title: 'Blog',
@@ -82,7 +94,8 @@ describe('<Blog />  when user is same as poster', () => {
   })
 
   test('clicking likes button twice calls event handler twice', async () => {
-    const incrementLikes = jest.fn()
+    const incrementLikesMock = jest.fn()
+    useAppDispatch.mockImplementation(() => incrementLikesMock)
 
     const blog = {
       title: 'Blog',
@@ -101,8 +114,7 @@ describe('<Blog />  when user is same as poster', () => {
       id: '1111111',
     }
 
-    render(<Blog blog={blog} incrementLikes={incrementLikes} user={user} />)
-
+    render(<Blog blog={blog} user={user} />)
     const testUser = userEvent.setup()
     const button = screen.getByText('view')
     expect(button).toBeDefined()
@@ -111,9 +123,14 @@ describe('<Blog />  when user is same as poster', () => {
     const likesButton = screen.getByText('Like')
     expect(likesButton).toBeDefined()
     await testUser.click(likesButton)
+
+    expect(useAppDispatch).toHaveBeenCalled()
+    expect(incrementLikesMock).toHaveBeenCalled()
+
     await testUser.click(likesButton)
 
-    expect(incrementLikes.mock.calls).toHaveLength(2)
+    expect(useAppDispatch).toHaveBeenCalledTimes(2)
+    expect(incrementLikesMock).toHaveBeenCalledTimes(2)
   })
 })
 
@@ -137,6 +154,7 @@ describe('<Blog />  when user different than  poster', () => {
     }
 
     const { container } = render(<Blog blog={blog} user={user} />)
+
     const minimizedBlogDiv = container.querySelector('#minimized-blog')
     expect(minimizedBlogDiv).toHaveStyle('display: block')
 

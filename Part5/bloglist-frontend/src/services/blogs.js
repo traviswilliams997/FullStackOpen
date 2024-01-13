@@ -12,7 +12,7 @@ const getAll = async () => {
   return response.data
 }
 
-const create = async (newObject) => {
+const createNew = async (newObject) => {
   const config = {
     headers: { Authorization: token },
   }
@@ -31,4 +31,4 @@ const remove = async (id) => {
   return
 }
 
-export default { getAll, create, update, remove, setToken }
+export default { getAll, createNew, update, remove, setToken }

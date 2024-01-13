@@ -1,21 +1,35 @@
 import { useState } from 'react'
+import { useAppDispatch } from '../redux/redux-hooks'
+import { createBlog } from '../reducers/blogReducer'
+import { updateNotification } from '../reducers/notificationReducer'
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = ({ addBlogHelper }) => {
+  const dispatch = useAppDispatch()
+
   const [newBlogTitle, setNewBlogTitle] = useState('')
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
   const [newBlogUrl, setNewBlogUrl] = useState('')
 
-  const addBlog = (event) => {
+  const addBlog = async (event) => {
     event.preventDefault()
-    createBlog({
-      title: newBlogTitle,
-      author: newBlogAuthor,
-      url: newBlogUrl,
-    })
 
-    setNewBlogTitle('')
-    setNewBlogAuthor('')
-    setNewBlogUrl('')
+    const title = event.currentTarget.elements.title.value
+    const author = event.currentTarget.elements.author.value
+    const url = event.currentTarget.elements.url.value
+    event.currentTarget.elements.title.value = ''
+    event.currentTarget.elements.author.value = ''
+    event.currentTarget.elements.url.value = ''
+
+    const newBlog = {
+      title: title,
+      author: author,
+      url: url,
+    }
+    addBlogHelper(newBlog)
+
+    dispatch(createBlog(newBlog))
+
+    dispatch(updateNotification(`Added blog post "${newBlog.title}"`, 5))
   }
 
   const handleBlogTitleChange = (event) => {
@@ -34,6 +48,7 @@ const BlogForm = ({ createBlog }) => {
         title:
         <input
           id="title-input"
+          name="title"
           value={newBlogTitle}
           onChange={handleBlogTitleChange}
           placeholder="Title..."
@@ -42,6 +57,7 @@ const BlogForm = ({ createBlog }) => {
         author:
         <input
           id="author-input"
+          name="author"
           value={newBlogAuthor}
           onChange={handleBlogAuthorChange}
           placeholder="Author..."
@@ -50,6 +66,7 @@ const BlogForm = ({ createBlog }) => {
         url:
         <input
           id="url-input"
+          name="url"
           value={newBlogUrl}
           onChange={handleBlogUrlChange}
           placeholder="Url..."

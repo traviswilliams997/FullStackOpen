@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useAppSelector, useAppDispatch } from './redux/redux-hooks'
 
 import Blog from './components/Blog'
 import Notification from './components/Notification'
@@ -9,25 +10,28 @@ import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+import {
+  initializeBlogs,
+  incrementLikes,
+  removeBlog,
+} from './reducers/blogReducer'
+import { updateNotification } from './reducers/notificationReducer'
+
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [notificationMessage, setNotificationMessage] = useState(
-    'No notification yet...'
-  )
+  const dispatch = useAppDispatch()
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
+  const blogs = useAppSelector(({ blogs }) => {
+    return blogs
+  })
+
   useEffect(() => {
-    async function fetchBlogs() {
-      const blogs = await blogService.getAll()
-      const sortedBlogs = [...blogs]
-      sortedBlogs.sort((a, b) => b.likes - a.likes)
-      setBlogs(sortedBlogs)
-    }
-    fetchBlogs()
+    dispatch(initializeBlogs())
   }, [])
 
   useEffect(() => {
@@ -55,10 +59,7 @@ const App = () => {
       setPassword('')
     } catch (exception) {
       console.log('handleLogin error', exception.message)
-      setNotificationMessage('Wrong credentials')
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
+      dispatch(updateNotification('Wrong credentials', 5))
     }
   }
 
@@ -70,54 +71,16 @@ const App = () => {
     setPassword('')
   }
 
-  const addBlog = async (blogObject) => {
+  const addBlogHelper = () => {
     blogFormRef.current.toggleVisibility()
-
-    const returnedBlog = await blogService.create(blogObject)
-
-    setBlogs(blogs.concat(returnedBlog))
-    setNotificationMessage(`Added blog post "${returnedBlog.title}"`)
-    setTimeout(() => {
-      setNotificationMessage(null)
-    }, 5000)
   }
-
-  const incrementLikes = async (id) => {
-    const blog = await blogs.find((blog) => blog.id === id)
-    const changedBlog = { ...blog, likes: blog.likes + 1 }
-
-    try {
-      const returnedBlog = await blogService.update(id, changedBlog)
-      const newBlogs = blogs.map((blog) =>
-        blog.id !== id ? blog : returnedBlog
-      )
-      newBlogs.sort((a, b) => b.likes - a.likes)
-      setBlogs(newBlogs)
-    } catch (error) {
-      setNotificationMessage(`${error.message}`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
-      setBlogs(blogs.filter((blog) => blog.id !== id))
-    }
-  }
-
-  const removeBlog = async (id) => {
-    try {
-      await blogService.remove(id)
-      const newBlogs = blogs.filter((b) => b.id !== id)
-      setBlogs(newBlogs)
-    } catch (error) {
-      setNotificationMessage(`${error.message}`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
-    }
+  const handleLikes = (blog, likesErrorHandling) => {
+    dispatch(incrementLikes(blog.id, likesErrorHandling))
   }
 
   const blogForm = () => (
     <Togglable buttonLabel="new blog post" ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
+      <BlogForm addBlogHelper={addBlogHelper} />
     </Togglable>
   )
 
@@ -135,7 +98,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={notificationMessage} />
+      <Notification />
       {!user && (
         <div>
           <h2>log in to application</h2>
@@ -154,8 +117,7 @@ const App = () => {
             <Blog
               key={blog.id}
               blog={blog}
-              incrementLikes={incrementLikes}
-              removeBlog={removeBlog}
+              handleLikes={handleLikes}
               user={user}
             />
           ))}

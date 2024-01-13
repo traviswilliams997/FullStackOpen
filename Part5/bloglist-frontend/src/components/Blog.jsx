@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import { useAppDispatch } from '../redux/redux-hooks'
+import { incrementLikes, removeBlog } from '../reducers/blogReducer'
+import { updateNotification } from '../reducers/notificationReducer'
 
-const Blog = ({ blog, user, incrementLikes, removeBlog }) => {
+const Blog = ({ blog, user }) => {
+  const dispatch = useAppDispatch()
   const [fullBlogVisible, setFullBlogVisible] = useState(false)
 
   const blogStyle = {
@@ -13,18 +17,24 @@ const Blog = ({ blog, user, incrementLikes, removeBlog }) => {
   const hideWhenVisible = { display: fullBlogVisible ? 'none' : '' }
   const showWhenVisible = { display: fullBlogVisible ? '' : 'none' }
 
+  const likesErrorHandling = (error) => {
+    dispatch(updateNotification(`${error.message}`, 5))
+  }
   const handleLikes = () => {
-    incrementLikes(blog.id)
+    dispatch(incrementLikes(blog.id, likesErrorHandling))
   }
   const handleRemove = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      removeBlog(blog.id)
+      try {
+        dispatch(removeBlog(blog.id))
+      } catch (error) {
+        dispatch(updateNotification(`${error.message}`, 5))
+      }
     }
   }
   const handleShowFullBlog = () => {
     setFullBlogVisible(!fullBlogVisible)
   }
-
   if (blog.user.username === user.username) {
     return (
       <div className="blog" style={blogStyle}>
