@@ -7,14 +7,11 @@ import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 
-import blogService from './services/blogs'
 import loginService from './services/login'
 
-import {
-  initializeBlogs,
-  incrementLikes,
-  removeBlog,
-} from './reducers/blogReducer'
+import { initializeBlogs } from './reducers/blogReducer'
+import { resetUser, loginUser, logOutUser } from './reducers/userReducer'
+
 import { updateNotification } from './reducers/notificationReducer'
 
 const App = () => {
@@ -23,11 +20,14 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
   const blogs = useAppSelector(({ blogs }) => {
     return blogs
+  })
+
+  const user = useAppSelector(({ user }) => {
+    return user
   })
 
   useEffect(() => {
@@ -38,44 +38,34 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      dispatch(resetUser(user))
     }
   }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
-
     try {
       const user = await loginService.login({
         username,
         password,
       })
-
-      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername('')
-      setPassword('')
+      dispatch(loginUser(user))
     } catch (exception) {
-      console.log('handleLogin error', exception.message)
       dispatch(updateNotification('Wrong credentials', 5))
     }
+    setUsername('')
+    setPassword('')
   }
 
   const handleLogOut = (event) => {
     event.preventDefault()
-    window.localStorage.removeItem('loggedBlogAppUser')
-    setUser(null)
+    dispatch(logOutUser())
     setUsername('')
     setPassword('')
   }
 
   const addBlogHelper = () => {
     blogFormRef.current.toggleVisibility()
-  }
-  const handleLikes = (blog, likesErrorHandling) => {
-    dispatch(incrementLikes(blog.id, likesErrorHandling))
   }
 
   const blogForm = () => (
@@ -114,12 +104,7 @@ const App = () => {
           {blogForm()}
           <br />
           {blogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              handleLikes={handleLikes}
-              user={user}
-            />
+            <Blog key={blog.id} blog={blog} user={user} />
           ))}
         </div>
       )}
