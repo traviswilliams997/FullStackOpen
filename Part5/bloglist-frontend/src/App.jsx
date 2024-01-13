@@ -10,9 +10,17 @@ import BlogForm from './components/BlogForm'
 import loginService from './services/login'
 
 import { initializeBlogs } from './reducers/blogReducer'
-import { resetUser, loginUser, logOutUser } from './reducers/userReducer'
+
+import {
+  resetUser,
+  loginUser,
+  logOutUser,
+  initializeUsers,
+} from './reducers/userReducer'
 
 import { updateNotification } from './reducers/notificationReducer'
+
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 
 const App = () => {
   const dispatch = useAppDispatch()
@@ -27,11 +35,16 @@ const App = () => {
   })
 
   const user = useAppSelector(({ user }) => {
-    return user
+    return user.currentUser
+  })
+
+  const users = useAppSelector(({ user }) => {
+    return user.users
   })
 
   useEffect(() => {
     dispatch(initializeBlogs())
+    dispatch(initializeUsers())
   }, [])
 
   useEffect(() => {
@@ -85,8 +98,7 @@ const App = () => {
       />
     </Togglable>
   )
-
-  return (
+  const home = () => (
     <div>
       <Notification />
       {!user && (
@@ -109,6 +121,40 @@ const App = () => {
         </div>
       )}
     </div>
+  )
+  const usersPage = () => (
+    <div>
+      <Notification />
+      {!user && (
+        <div>
+          <h2>log in to application</h2>
+          {loginForm()}
+        </div>
+      )}
+
+      {user && users && (
+        <div>
+          <h2>blogs</h2>
+          <p>{user.name} logged in</p>
+          <button onClick={handleLogOut}>Logout</button>
+          <h2>users</h2>
+          <div>............. blogs created</div>
+          {users.map((user) => (
+            <div key={user.username}>
+              {user.name} {user.blogs.length}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+  return (
+    <Router>
+      <Routes>
+        <Route path="/users" element={usersPage()} />
+        <Route path="/" element={home()} />
+      </Routes>
+    </Router>
   )
 }
 
