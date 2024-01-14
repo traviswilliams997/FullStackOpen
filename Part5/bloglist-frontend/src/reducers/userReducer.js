@@ -28,8 +28,6 @@ export const { setUsers, appendUser, setCurrentUser } = userSlice.actions
 export const initializeUsers = () => {
   return async (dispatch) => {
     const users = await userService.getAll()
-    console.log('init', users)
-
     dispatch(setUsers(users))
   }
 }
@@ -43,7 +41,6 @@ export const resetUser = (user) => {
 export const loginUser = (user) => {
   return async (dispatch) => {
     window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
-    console.log(user)
     dispatch(setCurrentUser(user))
     blogService.setToken(user.token)
   }

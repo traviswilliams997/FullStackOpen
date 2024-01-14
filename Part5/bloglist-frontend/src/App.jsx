@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAppSelector, useAppDispatch } from './redux/redux-hooks'
+import { incrementLikes, removeBlog } from './reducers/blogReducer'
 
 import Blog from './components/Blog'
 import Notification from './components/Notification'
@@ -10,6 +11,7 @@ import BlogForm from './components/BlogForm'
 import loginService from './services/login'
 
 import { initializeBlogs } from './reducers/blogReducer'
+import { updateNotification } from './reducers/notificationReducer'
 
 import {
   resetUser,
@@ -18,9 +20,13 @@ import {
   initializeUsers,
 } from './reducers/userReducer'
 
-import { updateNotification } from './reducers/notificationReducer'
-
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useParams,
+} from 'react-router-dom'
 
 const App = () => {
   const dispatch = useAppDispatch()
@@ -80,7 +86,12 @@ const App = () => {
   const addBlogHelper = () => {
     blogFormRef.current.toggleVisibility()
   }
-
+  const likesErrorHandling = (error) => {
+    dispatch(updateNotification(`${error.message}`, 5))
+  }
+  const handleLikes = (foundBlog) => {
+    dispatch(incrementLikes(foundBlog.id, likesErrorHandling))
+  }
   const blogForm = () => (
     <Togglable buttonLabel="new blog post" ref={blogFormRef}>
       <BlogForm addBlogHelper={addBlogHelper} />
@@ -100,7 +111,6 @@ const App = () => {
   )
   const home = () => (
     <div>
-      <Notification />
       {!user && (
         <div>
           <h2>log in to application</h2>
@@ -109,14 +119,16 @@ const App = () => {
       )}
       {user && (
         <div>
-          <h2>blogs</h2>
-          <p>{user.name} logged in</p>
-          <button onClick={handleLogOut}>Logout</button>
-          <h3>Create new blog</h3>
+          <h2>Blog App</h2>
           {blogForm()}
           <br />
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} user={user} />
+            <li key={blog.id}>
+              <Link to={`/blogs/${blog.id}`}>
+                {' '}
+                {blog.title} {blog.author}
+              </Link>
+            </li>
           ))}
         </div>
       )}
@@ -124,7 +136,6 @@ const App = () => {
   )
   const usersPage = () => (
     <div>
-      <Notification />
       {!user && (
         <div>
           <h2>log in to application</h2>
@@ -140,18 +151,70 @@ const App = () => {
           <h2>users</h2>
           <div>............. blogs created</div>
           {users.map((user) => (
-            <div key={user.username}>
-              {user.name} {user.blogs.length}
+            <div key={user.id}>
+              <Link to={`/users/${user.id}`}>
+                {' '}
+                {user.name} {user.blogs.length}
+              </Link>
             </div>
           ))}
         </div>
       )}
     </div>
   )
+
+  const User = ({ userArr }) => {
+    const id = useParams().id
+    const foundUser = userArr.find((u) => u.id === id)
+    if (!foundUser) {
+      return null
+    }
+    return (
+      <div>
+        <h2>{foundUser.username}</h2>
+        <div>added blogs</div>
+        {foundUser.blogs.map((blog) => (
+          <li key={blog.id}> {blog.title}</li>
+        ))}
+      </div>
+    )
+  }
+  const BlogView = ({ blogArr }) => {
+    const id = useParams().id
+    const foundBlog = blogArr.find((b) => b.id === id)
+    if (!foundBlog) {
+      return null
+    }
+    return (
+      <div>
+        <h1>
+          {foundBlog.title} {foundBlog.author}
+        </h1>
+        <div>{foundBlog.url}</div>
+        <div>
+          {foundBlog.likes}{' '}
+          <button onClick={() => handleLikes(foundBlog)}>Like</button>
+        </div>
+        <div>added by {foundBlog.user.username}</div>
+      </div>
+    )
+  }
+
   return (
     <Router>
+      <Notification />{' '}
+      {user && (
+        <div>
+          <Link to="/">blogs </Link>
+          <Link to="/users">users </Link>
+          {user && user.name} logged in
+          <button onClick={handleLogOut}> Logout</button>
+        </div>
+      )}
       <Routes>
+        <Route path="/users/:id" element={<User userArr={users} />} />
         <Route path="/users" element={usersPage()} />
+        <Route path="/blogs/:id" element={<BlogView blogArr={blogs} />} />
         <Route path="/" element={home()} />
       </Routes>
     </Router>
