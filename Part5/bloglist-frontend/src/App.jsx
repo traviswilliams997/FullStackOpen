@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAppSelector, useAppDispatch } from './redux/redux-hooks'
-import { incrementLikes, removeBlog } from './reducers/blogReducer'
+import { incrementLikes, removeBlog, addComment } from './reducers/blogReducer'
 
 import Blog from './components/Blog'
 import Notification from './components/Notification'
@@ -86,12 +86,14 @@ const App = () => {
   const addBlogHelper = () => {
     blogFormRef.current.toggleVisibility()
   }
+
   const likesErrorHandling = (error) => {
     dispatch(updateNotification(`${error.message}`, 5))
   }
   const handleLikes = (foundBlog) => {
     dispatch(incrementLikes(foundBlog.id, likesErrorHandling))
   }
+
   const blogForm = () => (
     <Togglable buttonLabel="new blog post" ref={blogFormRef}>
       <BlogForm addBlogHelper={addBlogHelper} />
@@ -180,8 +182,27 @@ const App = () => {
     )
   }
   const BlogView = ({ blogArr }) => {
+    const [comment, setComment] = useState('')
+
     const id = useParams().id
     const foundBlog = blogArr.find((b) => b.id === id)
+    const submitComment = (comment) => {
+      dispatch(addComment(foundBlog.id, comment))
+    }
+
+    const handleComment = (event) => {
+      event.preventDefault()
+
+      const comment = event.currentTarget.elements.comment.value
+      event.currentTarget.elements.comment.value = ''
+
+      submitComment(comment)
+    }
+
+    const handleCommentChange = (event) => {
+      setComment(event.target.value)
+    }
+
     if (!foundBlog) {
       return null
     }
@@ -196,6 +217,24 @@ const App = () => {
           <button onClick={() => handleLikes(foundBlog)}>Like</button>
         </div>
         <div>added by {foundBlog.user.username}</div>
+
+        <form onSubmit={handleComment}>
+          <div>
+            comment
+            <input
+              id="comment"
+              name="comment"
+              value={comment}
+              onChange={handleCommentChange}
+            />
+          </div>
+          <button id="comment-button" type="submit">
+            submit
+          </button>
+        </form>
+        {foundBlog.comments.map((comment) => (
+          <li key={comment.id}> {comment.content}</li>
+        ))}
       </div>
     )
   }
@@ -212,10 +251,10 @@ const App = () => {
         </div>
       )}
       <Routes>
-        <Route path="/users/:id" element={<User userArr={users} />} />
         <Route path="/users" element={usersPage()} />
-        <Route path="/blogs/:id" element={<BlogView blogArr={blogs} />} />
+        <Route path="/users/:id" element={<User userArr={users} />} />
         <Route path="/" element={home()} />
+        <Route path="/blogs/:id" element={<BlogView blogArr={blogs} />} />
       </Routes>
     </Router>
   )

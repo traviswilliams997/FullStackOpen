@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 const jwt = require('jsonwebtoken')
 
 const getTokenFrom = (request) => {
@@ -12,7 +13,10 @@ const getTokenFrom = (request) => {
 }
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
+  const blogs = await Blog.find({}).populate([
+    { path: 'user', select: 'username , name' },
+    'comments',
+  ])
 
   response.json(blogs)
 })
@@ -33,11 +37,14 @@ blogsRouter.post('/', async (request, response) => {
       url: body.url,
       likes: body.likes,
       user: user.id,
+      comments: body.comments,
     })
-
     const savedBlog = await blog.save()
 
-    await savedBlog.populate('user', { username: 1, name: 1 })
+    await savedBlog.populate([
+      { path: 'user', select: 'username , name' },
+      'comments',
+    ])
 
     user.blogs = user.blogs.concat(savedBlog.id)
     await user.save()
@@ -58,11 +65,38 @@ blogsRouter.put('/:id', async (request, response, next) => {
     url: body.url,
     likes: body.likes,
   }
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+    new: true,
+  })
+  await updatedBlog.populate([
+    { path: 'user', select: 'username , name' },
+    'comments',
+  ])
+
+  try {
+    response.json(updatedBlog)
+  } catch (error) {
+    next(error)
+  }
+})
+blogsRouter.put('/:id/comments', async (request, response, next) => {
+  const body = request.body
+  console.log('vody', body)
+  const newComment = new Comment({
+    content: body.content,
+  })
+  const savedComment = await newComment.save()
+  const blog = await Blog.findById(request.params.id)
+  console.log('blog', blog)
+  blog.comments.push(savedComment)
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
     new: true,
   })
-  await updatedBlog.populate('user', { username: 1, name: 1 })
+  await updatedBlog.populate([
+    { path: 'user', select: 'username , name' },
+    'comments',
+  ])
 
   try {
     response.json(updatedBlog)

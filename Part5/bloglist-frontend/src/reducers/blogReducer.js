@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import blogService from '../services/blogs'
+import { compose } from 'redux'
 
 const blogSlice = createSlice({
   name: 'blogs',
@@ -56,6 +57,29 @@ export const incrementLikes = (id, likesErrorHandling) => {
       dispatch(setBlogs(sortedBlogs))
     } catch (error) {
       likesErrorHandling(error)
+      dispatch(setBlogs(blogs.filter((blog) => blog.id !== id)))
+    }
+  }
+}
+
+export const addComment = (id, commentContent) => {
+  return async (dispatch) => {
+    const blogs = await blogService.getAll()
+    const comment = {
+      content: commentContent,
+    }
+    try {
+      const blog = await blogs.find((blog) => blog.id === id)
+      const changedBlog = { ...blog }
+      changedBlog.comments.push(comment)
+      const returnedBlog = await blogService.addComment(id, comment)
+      const newBlogs = blogs.map((blog) =>
+        blog.id !== id ? blog : returnedBlog
+      )
+      const sortedBlogs = [...newBlogs]
+      sortedBlogs.sort((a, b) => b.likes - a.likes)
+      dispatch(setBlogs(sortedBlogs))
+    } catch (error) {
       dispatch(setBlogs(blogs.filter((blog) => blog.id !== id)))
     }
   }
